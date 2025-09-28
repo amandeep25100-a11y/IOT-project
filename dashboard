@@ -1,0 +1,67 @@
+import sqlite3
+from datetime import datetime
+
+DB_PATH = "events.db"
+
+def show_all_detections():
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    
+    cursor.execute("SELECT id, label, confidence, timestamp FROM detections ORDER BY id DESC")
+    rows = cursor.fetchall()
+    
+    if not rows:
+        print("No detections found.")
+        return
+    
+    print(f"{'ID':<5} {'Label':<20} {'Confidence':<10} {'Timestamp'}")
+    print("-" * 60)
+    for row in rows:
+        id_, label, conf, ts = row
+        print(f"{id_:<5} {label:<20} {conf:<10.2f} {ts}")
+    
+    conn.close()
+
+def filter_by_label(label_name):
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    
+    cursor.execute(
+        "SELECT id, label, confidence, timestamp FROM detections WHERE label=? ORDER BY id DESC",
+        (label_name,)
+    )
+    rows = cursor.fetchall()
+    
+    if not rows:
+        print(f"No detections found for label '{label_name}'.")
+        return
+    
+    print(f"{'ID':<5} {'Label':<20} {'Confidence':<10} {'Timestamp'}")
+    print("-" * 60)
+    for row in rows:
+        id_, label, conf, ts = row
+        print(f"{id_:<5} {label:<20} {conf:<10.2f} {ts}")
+    
+    conn.close()
+
+def main():
+    while True:
+        print("\n--- Detection Dashboard ---")
+        print("1. Show all detections")
+        print("2. Filter by label")
+        print("3. Exit")
+        choice = input("Enter choice: ").strip()
+        
+        if choice == "1":
+            show_all_detections()
+        elif choice == "2":
+            label = input("Enter label to filter: ").strip()
+            filter_by_label(label)
+        elif choice == "3":
+            print("Exiting dashboard...")
+            break
+        else:
+            print("Invalid choice. Try again.")
+
+if __name__ == "__main__":
+    main()

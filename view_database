@@ -1,0 +1,26 @@
+import sqlite3
+from collections import Counter
+
+# Connect to database
+conn = sqlite3.connect("events.db")
+cursor = conn.cursor()
+
+# Fetch all rows
+cursor.execute("SELECT label, confidence, timestamp FROM detections")
+rows = cursor.fetchall()
+
+if rows:
+    print("All Detections:")
+    for r in rows:
+        print(r)
+
+    # Count detections per object class
+    labels = [r[0] for r in rows]
+    counts = Counter(labels)
+    print("\nDetection Count per Object:")
+    for label, count in counts.items():
+        print(f"{label}: {count}")
+else:
+    print("No detections found.")
+
+conn.close()
